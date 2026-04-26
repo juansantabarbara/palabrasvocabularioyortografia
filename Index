@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Palabras Relámpago - Vocabulario y Ortografía</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#172033;
+      --muted:#5d6880;
+      --accent:#5b6ee1;
+      --accent2:#ffb703;
+      --ok:#2a9d8f;
+      --danger:#e63946;
+      --shadow:0 18px 50px rgba(20,30,60,.14);
+      --radius:26px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(91,110,225,.20), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(255,183,3,.22), transparent 38%),
+        var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+    .app{
+      width:min(980px, 100%);
+      min-height:650px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter: blur(8px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    header{
+      padding:22px 28px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      border-bottom:1px solid rgba(23,32,51,.08);
+      background:linear-gradient(90deg, rgba(91,110,225,.10), rgba(255,183,3,.10));
+    }
+    .brand h1{
+      margin:0;
+      font-size:clamp(1.4rem, 3vw, 2rem);
+      letter-spacing:-.03em;
+    }
+    .brand p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:.98rem;
+    }
+    .pill{
+      background:#fff;
+      border:1px solid rgba(23,32,51,.1);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:700;
+      color:var(--accent);
+      white-space:nowrap;
+    }
+    main{padding:28px}
+    .screen{display:none}
+    .screen.active{display:block}
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    @media (max-width:800px){
+      .hero{grid-template-columns:1fr}
+      header{flex-direction:column; align-items:flex-start}
+    }
+    .panel{
+      background:var(--card);
+      border:1px solid rgba(23,32,51,.08);
+      border-radius:22px;
+      padding:24px;
+      box-shadow:0 10px 25px rgba(20,30,60,.07);
+    }
+    .panel h2{margin:0 0 10px; font-size:1.55rem}
+    .panel p{color:var(--muted); line-height:1.45}
+    .levels{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+      margin-top:18px;
+    }
+    @media (max-width:600px){.levels{grid-template-columns:repeat(2,1fr)}}
+    button{
+      border:0;
+      border-radius:16px;
+      padding:14px 18px;
+      font-size:1rem;
+      font-weight:800;
+      cursor:pointer;
+      transition:.15s transform, .15s box-shadow, .15s opacity;
+      font-family:inherit;
+    }
+    button:hover{transform:translateY(-1px); box-shadow:0 8px 18px rgba(20,30,60,.12)}
+    button:active{transform:translateY(0)}
+    .btn-main{background:var(--accent); color:white}
+    .btn-yellow{background:var(--accent2); color:#1e1e1e}
+    .btn-light{background:#eef1ff; color:var(--accent)}
+    .btn-danger{background:#ffe9ec; color:var(--danger)}
+    .btn-level{
+      background:#f2f4ff;
+      color:#3343a9;
+      border:1px solid rgba(91,110,225,.16);
+      min-height:70px;
+    }
+    .btn-level.selected{
+      background:var(--accent);
+      color:white;
+    }
+    .tips{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+    .tip{
+      border-radius:16px;
+      padding:14px;
+      background:#f8f9fc;
+      border:1px solid rgba(23,32,51,.07);
+    }
+    .tip strong{display:block; margin-bottom:4px}
+    .game-card{
+      min-height:500px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      gap:20px;
+    }
+    .status{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:8px;
+    }
+    .status span{
+      background:#f5f6fb;
+      border:1px solid rgba(23,32,51,.08);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .word{
+      font-size:clamp(3.5rem, 12vw, 8.5rem);
+      font-weight:950;
+      letter-spacing:-.06em;
+      line-height:1;
+      color:var(--ink);
+      text-wrap:balance;
+    }
+    .subword{
+      color:var(--muted);
+      font-size:1.25rem;
+      font-weight:700;
+    }
+    .progress{
+      width:min(520px, 100%);
+      height:14px;
+      background:#e9ecf5;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .bar{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      transform-origin:left;
+    }
+    .blackout{
+      position:fixed;
+      inset:0;
+      background:#000;
+      color:#fff;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      z-index:20;
+      text-align:center;
+      padding:24px;
+    }
+    .blackout.active{display:flex}
+    .blackout h2{
+      font-size:clamp(1.6rem, 4vw, 3rem);
+      margin:0 0 12px;
+    }
+    .timer{
+      font-size:clamp(5rem, 18vw, 13rem);
+      font-weight:950;
+      line-height:1;
+      letter-spacing:-.06em;
+      font-variant-numeric:tabular-nums;
+    }
+    .post-round{
+      display:none;
+      margin-top:24px;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .post-round.active{display:flex}
+    .history{
+      margin-top:18px;
+      max-height:150px;
+      overflow:auto;
+      background:#fafbff;
+      border-radius:16px;
+      padding:12px;
+      border:1px solid rgba(23,32,51,.08);
+      color:var(--muted);
+      line-height:1.55;
+    }
+    .small{font-size:.92rem; color:var(--muted)}
+    .footer-actions{
+      margin-top:18px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .modal{
+      position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30; display:none;
+      align-items:center; justify-content:center; padding:18px;
+    }
+    .modal.active{display:flex}
+    .modal-card{
+      width:min(820px, 100%); max-height:92vh; overflow:auto; background:white; border-radius:26px;
+      box-shadow:0 25px 80px rgba(0,0,0,.25); padding:24px; border:1px solid rgba(255,255,255,.7);
+    }
+    .modal-head{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:16px}
+    input, select, textarea{
+      width:100%; border:1px solid rgba(23,32,51,.16); border-radius:14px; padding:13px 14px;
+      font-size:1rem; background:#fbfcff; color:var(--ink);
+    }
+    textarea{min-height:110px; resize:vertical}
+    label{display:block; font-weight:800; margin:14px 0 7px}
+    .form-grid{display:grid; grid-template-columns:1fr 170px; gap:12px}
+    @media(max-width:650px){.form-grid{grid-template-columns:1fr}}
+    .word-list{margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; padding:12px; border-radius:16px; background:#fafbff; border:1px solid rgba(23,32,51,.08); max-height:160px; overflow:auto}
+    .chip{background:#eef1ff; color:#3343a9; border-radius:999px; padding:8px 10px; font-weight:700; display:flex; gap:8px; align-items:center}
+    .chip button{padding:2px 7px; border-radius:999px; background:white; color:var(--danger); font-size:.8rem}
+    .notice{padding:12px 14px; border-radius:14px; background:#fff8df; color:#6d5200; border:1px solid #ffe296; margin-top:12px}
+    .btn-ok{background:#e9fbf8; color:#16786c}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>⚡ Palabras Relámpago</h1>
+        <p>Vocabulario + ortografía por niveles. Ver, retener, escribir y revisar.</p>
+      </div>
+      <div class="pill" id="memoryPill">0 palabras usadas</div>
+    </header>
+
+    <main>
+      <section id="startScreen" class="screen active">
+        <div class="hero">
+          <div class="panel">
+            <h2>Elige curso y empieza la ronda</h2>
+            <p>
+              La app mostrará <strong>3 palabras</strong>. Cada palabra aparece durante
+              <strong>5 segundos</strong>. Después se activa una pantalla negra con
+              <strong>1 minuto</strong> para que escriban las palabras que recuerdan.
+            </p>
+
+            <div class="levels" id="levels"></div>
+
+            <div class="footer-actions">
+              <button class="btn-main" id="startBtn">Empezar juego</button>
+              <button class="btn-ok" id="teacherBtn">Modo docente: añadir palabras</button>
+              <button class="btn-light" id="resetBtn">Reiniciar palabras usadas</button>
+            </div>
+
+            <p class="small">No repite palabras mientras dure la partida. Si se agota el nivel, avisa y permite reiniciar.</p>
+          </div>
+
+          <div class="panel">
+            <h2>Modo aula</h2>
+            <div class="tips">
+              <div class="tip"><strong>👀 Atención focalizada</strong> El alumnado solo lee. No escribe hasta la pantalla negra.</div>
+              <div class="tip"><strong>✍️ Evocación</strong> Escriben de memoria. La ortografía se trabaja desde la recuperación.</div>
+              <div class="tip"><strong>🔁 Revisión</strong> Después de cada ronda puedes corregir en voz alta, por parejas o en mini-pizarra.</div>
+              <div class="tip"><strong>🎮 Gamificación sencilla</strong> 1 punto por palabra recordada + 1 extra por ortografía perfecta.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="screen">
+        <div class="panel game-card">
+          <div class="status">
+            <span id="levelLabel">Nivel</span>
+            <span id="roundLabel">Ronda 1</span>
+            <span id="leftLabel">Quedan 50</span>
+          </div>
+
+          <div class="subword" id="cue">Lee con atención</div>
+          <div class="word" id="wordDisplay">Preparados</div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+
+          <div class="post-round" id="postRound">
+            <button class="btn-main" id="nextRoundBtn">Lanzar otras 3 palabras</button>
+            <button class="btn-yellow" id="changeLevelBtn">Cambiar nivel</button>
+            <button class="btn-danger" id="exitBtn">Salir del juego</button>
+          </div>
+
+          <div class="history" id="historyBox">
+            Todavía no ha salido ninguna palabra.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+  <div class="modal" id="teacherModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2>Modo docente</h2>
+          <p class="small">Añade palabras nuevas al curso que quieras. Quedan guardadas en este dispositivo/navegador.</p>
+        </div>
+        <button class="btn-danger" id="closeTeacherBtn">Cerrar</button>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="newWord">Meter palabra</label>
+          <input id="newWord" placeholder="Ejemplo: biodiversidad" autocomplete="off">
+        </div>
+        <div>
+          <label for="newWordLevel">Añadir al curso</label>
+          <select id="newWordLevel">
+            <option value="1">1.º Primaria</option><option value="2">2.º Primaria</option><option value="3">3.º Primaria</option>
+            <option value="4">4.º Primaria</option><option value="5">5.º Primaria</option><option value="6">6.º Primaria</option>
+          </select>
+        </div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn-main" id="addWordBtn">Añadir palabra</button>
+        <button class="btn-light" id="clearCustomBtn">Borrar palabras añadidas</button>
+      </div>
+      <div class="notice">También puedes pegar varias palabras separadas por comas: <strong>atmósfera, oxígeno, geografía, brújula</strong>.</div>
+      <label for="bulkWords">Añadir muchas palabras a la vez</label>
+      <textarea id="bulkWords" placeholder="Pega aquí palabras separadas por comas o saltos de línea"></textarea>
+      <div class="footer-actions">
+        <button class="btn-ok" id="bulkAddBtn">Añadir lista al curso elegido</button>
+        <button class="btn-yellow" id="exportBtn">Copiar banco personalizado</button>
+      </div>
+      <label>Palabras añadidas en el curso seleccionado</label>
+      <div class="word-list" id="customList"></div>
+    </div>
+  </div>
+
+  <div class="blackout" id="blackout">
+    <h2>Ahora escribe las 3 palabras</h2>
+    <div class="timer" id="timer">1:00</div>
+    <p>Sin mirar. Intenta recordar y escribir con buena ortografía.</p>
+  </div>
+
+
+<script>
+const BASE_WORDS = {
+  "1": [
+    "casa","mesa","silla","lápiz","goma","libro","pato","gato","perro","sol",
+    "luna","mano","pie","nariz","boca","ojo","mamá","papá","niño","niña",
+    "agua","pan","leche","sopa","flor","árbol","hoja","rojo","azul","verde",
+    "tren","barco","coche","calle","patio","cole","amigo","juego","risa","cuento",
+    "pelota","zapato","abrigo","globo","nube","lluvia","pez","rana","oso","cama"
+  ],
+  "2": [
+    "ventana","puerta","camino","jardín","bosque","montaña","playa","arena","familia","hermano",
+    "abuela","escuela","mochila","estuche","pizarra","recreo","balón","equipo","canción","cuento",
+    "dragón","ratón","jamón","limón","corazón","reloj","tijeras","cepillo","botella","cuchara",
+    "tenedor","plato","galleta","queso","zanahoria","manzana","naranja","jueves","sábado","domingo",
+    "invierno","verano","primavera","otoño","mañana","noche","ciudad","pueblo","caballo","oveja"
+  ],
+  "3": [
+    "aventura","biblioteca","compañero","diccionario","pregunta","respuesta","problema","cuaderno","ordenador","pantalla",
+    "naturaleza","semilla","raíces","tronco","ramas","insecto","mariposa","hormiga","abeja","caracol",
+    "cigüeña","pingüino","vergüenza","guitarra","guerra","guiño","juguete","colegio","magia","energía",
+    "noticia","periódico","historia","capítulo","personaje","diálogo","descripción","alegría","tristeza","sorpresa",
+    "valiente","rápido","difícil","fácil","cálido","húmedo","brillante","silencio","ruido","paisaje"
+  ],
+  "4": [
+    "ortografía","vocabulario","sinónimo","antónimo","sustantivo","adjetivo","verbo","pronombre","determinante","oración",
+    "párrafo","resumen","esquema","exposición","investigación","experimento","hipótesis","resultado","conclusión","materia",
+    "temperatura","evaporación","condensación","precipitación","atmósfera","continente","océano","península","archipiélago","provincia",
+    "municipio","comunidad","tradición","patrimonio","democracia","convivencia","responsabilidad","solidaridad","esfuerzo","perseverancia",
+    "kilómetro","centímetro","triángulo","rectángulo","circunferencia","multiplicación","división","fracción","decimal","aproximación"
+  ],
+  "5": [
+    "ecosistema","biodiversidad","depredador","productor","consumidor","descomponedor","fotosíntesis","nutriente","hábitat","adaptación",
+    "sostenibilidad","contaminación","reciclaje","reutilización","energético","renovable","climático","meteorología","geografía","cartografía",
+    "coordenadas","latitud","longitud","relieve","meseta","cordillera","depresión","vertiente","hidrografía","afluente",
+    "argumento","opinión","evidencia","coherencia","cohesión","conector","introducción","desarrollo","desenlace","narrador",
+    "metáfora","comparación","hipérbole","onomatopeya","biografía","autobiografía","cronología","simetría","porcentaje","probabilidad"
+  ],
+  "6": [
+    "ambigüedad","exhaustivo","excepción","influencia","coexistencia","consecuencia","circunstancia","estrategia","jerarquía","autonomía",
+    "democrático","institución","constitución","ciudadanía","diversidad","inclusión","equidad","accesibilidad","vulnerabilidad","resiliencia",
+    "argumentación","contraargumento","subjetividad","objetividad","interpretación","inferencial","explícito","implícito","polisemia","homonimia",
+    "morfología","sintaxis","predicado","complemento","circunstancial","yuxtaposición","coordinación","subordinación","proporcionalidad","equivalencia",
+    "estadística","frecuencia","diagrama","magnitud","superficie","volumen","densidad","trayectoria","gravitatorio","electromagnético"
+  ]
+};
+
+const STORAGE_KEY = "palabras_relampago_custom_words_v2";
+let customWords = loadCustomWords();
+let selectedLevel = "1";
+let used = {};
+let round = 1;
+let currentTriplet = [];
+let showing = false;
+Object.keys(BASE_WORDS).forEach(k => used[k] = []);
+
+const $ = id => document.getElementById(id);
+const levelsDiv = $("levels");
+const startScreen = $("startScreen");
+const gameScreen = $("gameScreen");
+const startBtn = $("startBtn");
+const resetBtn = $("resetBtn");
+const wordDisplay = $("wordDisplay");
+const cue = $("cue");
+const bar = $("bar");
+const blackout = $("blackout");
+const timer = $("timer");
+const postRound = $("postRound");
+const nextRoundBtn = $("nextRoundBtn");
+const changeLevelBtn = $("changeLevelBtn");
+const exitBtn = $("exitBtn");
+const levelLabel = $("levelLabel");
+const roundLabel = $("roundLabel");
+const leftLabel = $("leftLabel");
+const historyBox = $("historyBox");
+const memoryPill = $("memoryPill");
+
+const teacherModal = $("teacherModal");
+const teacherBtn = $("teacherBtn");
+const closeTeacherBtn = $("closeTeacherBtn");
+const newWord = $("newWord");
+const newWordLevel = $("newWordLevel");
+const addWordBtn = $("addWordBtn");
+const bulkWords = $("bulkWords");
+const bulkAddBtn = $("bulkAddBtn");
+const clearCustomBtn = $("clearCustomBtn");
+const exportBtn = $("exportBtn");
+const customList = $("customList");
+
+function cleanWord(w){ return String(w || "").trim().replace(/\s+/g, " "); }
+function loadCustomWords(){
+  try{
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    return {"1":[],"2":[],"3":[],"4":[],"5":[],"6":[], ...data};
+  }catch(e){
+    return {"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]};
+  }
+}
+function saveCustomWords(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(customWords)); }
+function allWords(level){
+  return [...new Set([...BASE_WORDS[level], ...(customWords[level] || [])].map(cleanWord).filter(Boolean))];
+}
+function remaining(level = selectedLevel){
+  return allWords(level).length - used[level].length;
+}
+
+function renderLevels(){
+  levelsDiv.innerHTML = "";
+  Object.keys(BASE_WORDS).forEach(level => {
+    const btn = document.createElement("button");
+    btn.className = "btn-level" + (level === selectedLevel ? " selected" : "");
+    const extra = (customWords[level] || []).length;
+    btn.innerHTML = `${level}.º Primaria<br><small>${remaining(level)} disponibles · +${extra} propias</small>`;
+    btn.onclick = () => {
+      selectedLevel = level;
+      newWordLevel.value = level;
+      renderLevels();
+      updateLabels();
+      renderCustomList();
+    };
+    levelsDiv.appendChild(btn);
+  });
+}
+
+function updateLabels(){
+  const totalUsed = Object.values(used).reduce((acc, arr) => acc + arr.length, 0);
+  memoryPill.textContent = `${totalUsed} palabras usadas`;
+  levelLabel.textContent = `${selectedLevel}.º Primaria`;
+  roundLabel.textContent = `Ronda ${round}`;
+  leftLabel.textContent = `Quedan ${remaining()} palabras`;
+  if(used[selectedLevel].length === 0){
+    historyBox.textContent = "Todavía no ha salido ninguna palabra en este nivel.";
+  } else {
+    historyBox.innerHTML = "<strong>Palabras ya usadas en este nivel:</strong> " + used[selectedLevel].join(", ");
+  }
+}
+
+function renderCustomList(){
+  const level = newWordLevel.value || selectedLevel;
+  const list = customWords[level] || [];
+  customList.innerHTML = "";
+  if(list.length === 0){
+    customList.textContent = "Aún no has añadido palabras propias a este curso.";
+    return;
+  }
+  list.forEach((w, idx) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.textContent = w + " ";
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = "Eliminar";
+    del.onclick = () => {
+      customWords[level].splice(idx,1);
+      saveCustomWords();
+      renderCustomList();
+      renderLevels();
+      updateLabels();
+    };
+    chip.appendChild(del);
+    customList.appendChild(chip);
+  });
+}
+
+function addWordsToLevel(words, level){
+  const cleaned = words.map(cleanWord).filter(Boolean);
+  if(cleaned.length === 0) return alert("Escribe al menos una palabra.");
+  const current = new Set([...(customWords[level] || []), ...BASE_WORDS[level]]);
+  let added = 0;
+  cleaned.forEach(w => {
+    const exists = [...current].some(x => x.toLocaleLowerCase("es") === w.toLocaleLowerCase("es"));
+    if(!exists){
+      customWords[level].push(w);
+      current.add(w);
+      added++;
+    }
+  });
+  saveCustomWords();
+  renderCustomList();
+  renderLevels();
+  updateLabels();
+  alert(added ? `Añadidas ${added} palabra(s).` : "No se añadió ninguna: ya estaban en el banco.");
+}
+
+function pickTriplet(){
+  const available = allWords(selectedLevel).filter(w => !used[selectedLevel].includes(w));
+  if(available.length < 3) return null;
+  return available.sort(() => Math.random() - 0.5).slice(0,3);
+}
+
+function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function showTriplet(){
+  if(showing) return;
+  showing = true;
+  postRound.classList.remove("active");
+  currentTriplet = pickTriplet();
+
+  if(!currentTriplet){
+    wordDisplay.textContent = "Nivel completado";
+    cue.textContent = "Ya no quedan 3 palabras nuevas. Reinicia o cambia de nivel.";
+    postRound.classList.add("active");
+    showing = false;
+    return;
+  }
+
+  updateLabels();
+
+  for(let i=0; i<currentTriplet.length; i++){
+    const word = currentTriplet[i];
+    cue.textContent = `Palabra ${i+1} de 3`;
+    wordDisplay.textContent = word;
+    bar.style.transition = "none";
+    bar.style.transform = "scaleX(1)";
+    await sleep(60);
+    bar.style.transition = "transform 5s linear";
+    bar.style.transform = "scaleX(0)";
+    await sleep(5000);
+    used[selectedLevel].push(word);
+    updateLabels();
+  }
+
+  await startWritingTimer(60);
+  round++;
+  updateLabels();
+  postRound.classList.add("active");
+  wordDisplay.textContent = "Ronda terminada";
+  cue.textContent = "Corrige, puntúa o lanza otras 3 palabras.";
+  bar.style.transition = "none";
+  bar.style.transform = "scaleX(1)";
+  showing = false;
+}
+
+function startWritingTimer(seconds){
+  return new Promise(resolve => {
+    let left = seconds;
+    blackout.classList.add("active");
+    timer.textContent = formatTime(left);
+    const interval = setInterval(() => {
+      left--;
+      timer.textContent = formatTime(left);
+      if(left <= 0){
+        clearInterval(interval);
+        blackout.classList.remove("active");
+        resolve();
+      }
+    },1000);
+  });
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = String(sec%60).padStart(2,"0");
+  return `${m}:${s}`;
+}
+
+function goGame(){
+  startScreen.classList.remove("active");
+  gameScreen.classList.add("active");
+  updateLabels();
+  showTriplet();
+}
+
+function goStart(){
+  gameScreen.classList.remove("active");
+  startScreen.classList.add("active");
+  renderLevels();
+  updateLabels();
+}
+
+startBtn.onclick = goGame;
+nextRoundBtn.onclick = showTriplet;
+changeLevelBtn.onclick = goStart;
+exitBtn.onclick = goStart;
+
+resetBtn.onclick = () => {
+  Object.keys(BASE_WORDS).forEach(k => used[k] = []);
+  round = 1;
+  renderLevels();
+  updateLabels();
+};
+
+teacherBtn.onclick = () => {
+  teacherModal.classList.add("active");
+  newWordLevel.value = selectedLevel;
+  renderCustomList();
+  setTimeout(() => newWord.focus(), 100);
+};
+closeTeacherBtn.onclick = () => teacherModal.classList.remove("active");
+teacherModal.addEventListener("click", e => { if(e.target === teacherModal) teacherModal.classList.remove("active"); });
+newWordLevel.onchange = renderCustomList;
+addWordBtn.onclick = () => {
+  addWordsToLevel(newWord.value.split(/,|\n/), newWordLevel.value);
+  newWord.value = "";
+};
+newWord.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); addWordBtn.click(); } });
+bulkAddBtn.onclick = () => {
+  addWordsToLevel(bulkWords.value.split(/,|\n/), newWordLevel.value);
+  bulkWords.value = "";
+};
+clearCustomBtn.onclick = () => {
+  if(confirm("¿Seguro que quieres borrar todas las palabras añadidas por el docente?")){
+    customWords = {"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]};
+    saveCustomWords();
+    renderCustomList();
+    renderLevels();
+    updateLabels();
+  }
+};
+exportBtn.onclick = async () => {
+  const text = JSON.stringify(customWords, null, 2);
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("Banco personalizado copiado al portapapeles.");
+  }catch(e){
+    prompt("Copia este banco personalizado:", text);
+  }
+};
+
+renderLevels();
+updateLabels();
+renderCustomList();
+</script>
+
+</body>
+</html>
